@@ -24,7 +24,7 @@ cd "$PROJECT_DIR" || exit 1
 git init
 git branch -m master
 gh repo create "$PROJECT_NAME" --private --source=. --remote=origin
-echo "\# $PROJECT_NAME" > README.md
+echo "# $PROJECT_NAME" > README.md
 touch .gitignore
 git add README.md
 git add .gitignore
