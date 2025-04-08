@@ -8,16 +8,20 @@ DEFAULT_PYTHON_VERSION="3.9"
 
 # Display usage info
 usage() {
-    echo "Usage: $0 <target_name> [-n <env_name>] [-v <version>]"
+    echo "Usage: "
+    echo "  $0 <target_name> [-n <env_name>] [-v <version>]"
+    echo "  $0 <target_name> [-n <env_name>] [-b <base_env>]"
+    echo
     echo "  <target_name>  (mandatory) Name of repo in which to create the Python env."
     echo "  -n <env_name>  (optional)  Name for the Python Env (if different than repo name)."
-	echo "  -v <version>   (optional)  Python version to use for the environment (default: $DEFAULT_PYTHON_VERSION)"
+    echo "  -b <base_env>  (optional)  Name of base environment to use as starting point."
+    echo "  -v <version>   (optional)  Python version to use for the environment (default: $DEFAULT_PYTHON_VERSION)"
     exit 1
 }
 
 # Parse input
 if [ -z "$1" ]; then
-	usage
+    usage
 fi
 TARGET_NAME="$1"
 TARGET_DIR="./$TARGET_NAME"
@@ -26,10 +30,11 @@ PYTHON_VERSION=$DEFAULT_PYTHON_VERSION
 
 # Parse optional flags
 shift  # Shift positional argument off so getopts processes only flags
-while getopts "n:v:" opt; do
+while getopts "n:v:b:" opt; do
     case "$opt" in
-	    n) ENV_NAME="$OPTARG" ;;
+        n) ENV_NAME="$OPTARG" ;;
         v) PYTHON_VERSION="$OPTARG" ;;
+        b) BASE_ENV="$OPTARG" ;;
         \?) usage ;;
     esac
 done
@@ -52,7 +57,11 @@ fi
 # Create and configure the conda environment
 cd "$TARGET_DIR"
 mkdir src
-conda create -y --name "$ENV_NAME" python=$PYTHON_VERSION
+if [ "$BASE_ENV" ]; then
+    conda create -y --name "$ENV_NAME" --clone "$BASE_ENV"
+else
+    conda create -y --name "$ENV_NAME" python=$PYTHON_VERSION
+fi
 conda run -n "$ENV_NAME" --live-stream conda env config vars set PYTHONPATH="$(pwd)"/src
 conda run -n "$ENV_NAME" --live-stream conda env export --from-history > environment.yml
 
@@ -63,3 +72,4 @@ git push
 
 echo "Python environment '$ENV_NAME' created successfully."
 echo "Type <conda activate $ENV_NAME> to use it now."
+
