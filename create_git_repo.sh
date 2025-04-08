@@ -12,8 +12,8 @@ PROJECT_DIR="$HOME/dev/repos/$PROJECT_NAME"
 # Check that name is available in repos
 if [ -e "$PROJECT_DIR" ]; then
     echo "Cannot create repo '$PROJECT_NAME'."
-	echo "A repo with that name already exists."
-	exit 1
+    echo "A repo with that name already exists."
+    exit 1
 fi
 
 # Create project directory
@@ -22,10 +22,11 @@ cd "$PROJECT_DIR" || exit 1
 
 # Create and initialize the git repo
 git init
+git branch -m master
 gh repo create "$PROJECT_NAME" --private --source=. --remote=origin
-echo "\# $PROJECT_NAME" > ReadMe.md
+echo "\# $PROJECT_NAME" > README.md
 touch .gitignore
-git add ReadMe.md
+git add README.md
 git add .gitignore
 git commit -m "Inception"
 git push -u origin master
